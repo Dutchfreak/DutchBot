@@ -6,7 +6,7 @@ import json
 import ApiKey
 LastUpdate = 0
 
-API = ApiKey.API
+APIAdd = f"https://api.telegram.org/bot{ApiKey.API}/"
 def AddAction(message):
     Database = open("./BotDatabase","r")
     DBjson = json.loads(Database.read())
@@ -80,9 +80,9 @@ def EscapeText(text):
 
 def PostResponse(Chatid,Text,Markdown =False):
     if Markdown:
-        Result = requests.get(f'{API}sendmessage?chat_id={Chatid}&parse_mode=MarkdownV2&text={Text}')
+        Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&parse_mode=MarkdownV2&text={Text}')
     else:
-        Result = requests.get(f'{API}sendmessage?chat_id={Chatid}&text={Text}')
+        Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&text={Text}')
 
 def MatchMessage(message):
     Database = open("./BotDatabase","r")
@@ -96,9 +96,9 @@ def MatchMessage(message):
 
 while True:
 
-    Result = requests.get(f'{API}getUpdates?offset={LastUpdate}')
+    Result = requests.get(f'{APIAdd}getUpdates?offset={LastUpdate}')
     Updates = Result.json()
-
+    print (f'{APIAdd}getUpdates?offset={LastUpdate}')
     for Update in Updates["result"]:
         LastUpdate = Update["update_id"]+1
         if "text" in Update["message"]:
