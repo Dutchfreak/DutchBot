@@ -78,11 +78,16 @@ def EscapeText(text):
     print (ret)
     return ret
 
-def PostResponse(Chatid,Text,Markdown =False):
+def PostResponse(Chatid,Text,Markdown =False,Sender =""):
     if Markdown:
         Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&parse_mode=MarkdownV2&text={Text}')
     else:
-        Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&text={Text}')
+        if bool(re.search("{op}",Text)):
+            print(Text.replace("{op}",Sender))
+            Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&text={Text.replace("{op}",Sender)}')
+        else:
+            print(Text)
+            Result = requests.get(f'{APIAdd}sendmessage?chat_id={Chatid}&text={Text}')
 
 def MatchMessage(message):
     Database = open("./BotDatabase","r")
@@ -92,13 +97,14 @@ def MatchMessage(message):
         if  int(Chat["id"]) == int(message["chat"]["id"]):
             for key,value in Chat["Keys"].items():
                 if bool(re.search(key.lower(),message["text"].lower())):
-                    PostResponse(message["chat"]["id"],value)
+                    print(message["text"].lower())
+                    PostResponse(message["chat"]["id"],value,False,message["from"]["username"])
 
 while True:
 
     Result = requests.get(f'{APIAdd}getUpdates?offset={LastUpdate}')
     Updates = Result.json()
-    print (f'{APIAdd}getUpdates?offset={LastUpdate}')
+    #print (f'{APIAdd}getUpdates?offset={LastUpdate}')
     for Update in Updates["result"]:
         LastUpdate = Update["update_id"]+1
         if "text" in Update["message"]:
